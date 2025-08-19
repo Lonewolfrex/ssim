@@ -1,9 +1,9 @@
-from django.shortcuts import render
-from .models import Product, Customer, Vendor, Expense
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product, Customer, Vendor, Expense, Sale, Category
 from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
-
+from .forms import SaleForm, CategoryForm
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'product_list.html', {'products': products})
@@ -45,3 +45,33 @@ def capex_opex_charts(request):
         'opex_data': opex_data,
     }
     return render(request, 'capex_opex_charts.html', context)
+
+# Sales list & create
+def sales_list(request):
+    sales = Sale.objects.select_related('product', 'customer').all().order_by('-sale_date')
+    return render(request, 'sales_list.html', {'sales': sales})
+
+def sale_create(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('sales_list')
+    else:
+        form = SaleForm()
+    return render(request, 'sale_form.html', {'form': form})
+
+# Categories list & create
+def categories_list(request):
+    categories = Category.objects.all()
+    return render(request, 'categories_list.html', {'categories': categories})
+
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('categories_list')
+    else:
+        form = CategoryForm()
+    return render(request, 'category_form.html', {'form': form})
