@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Products</h2>
+<a href="{% url 'product_create' %}" class="btn btn-primary mb-3">Add New Product</a>
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Vendor</th>
+            <th>Stock</th>
+            <th>Cost Price</th>
+            <th>MRP</th>
+            <th>Selling Price</th>
+            <th>Discount (%)</th>
+            <th>Restock Date</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category.name }}</td>
+            <td>
+                {% if product.vendor %}
+                    {{ product.vendor.name }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ product.stock_quantity }}</td>
+            <td>{{ product.cost_price }}</td>
+            <td>{{ product.mrp }}</td>
+            <td>{{ product.selling_price }}</td>
+            <td>{{ product.discount }}</td>
+            <td>
+                {% if product.restock_date %}
+                    {{ product.restock_date|date:"Y-m-d" }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" width="50" alt="{{ product.name }}" />
+                {% else %}
+                    No Image
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="{% url 'restock_history_list' product.pk %}" class="btn btn-sm btn-info">Restock History</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="11" class="text-center">No products found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

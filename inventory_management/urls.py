@@ -5,5 +5,6 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(pattern_name='product_list', permanent=True)),  # Redirect root to products/
-    path('', include('inventory.urls')),  # Your app urls
+    path('', include('inventory.urls')),
+    path('', include('inventory.api_urls')),# Your app urls
 ]

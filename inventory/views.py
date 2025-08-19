@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Customer, Vendor, Expense, Sale, Category
+from .models import Product, Customer, Vendor, Expense, Sale, Category, RestockHistory
 from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
-from .forms import SaleForm, CategoryForm
-def product_list(request):
+from .forms import SaleForm, CategoryForm, ProductForm
+def products_list(request):
     products = Product.objects.all()
-    return render(request, 'product_list.html', {'products': products})
+    return render(request, 'products_list.html', {'products': products})
 
 def customer_list(request):
     customers = Customer.objects.all()
@@ -75,3 +75,51 @@ def category_create(request):
     else:
         form = CategoryForm()
     return render(request, 'category_form.html', {'form': form})
+
+def product_create(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.save()
+            # Add initial restock history if restock_date and stock_quantity given
+            if product.restock_date and product.stock_quantity:
+                RestockHistory.objects.create(
+                    product=product,
+                    previous_stock=0,
+                    restocked_quantity=product.stock_quantity,
+                    restock_date=product.restock_date
+                )
+            return redirect('products_list')
+    else:
+        form = ProductForm()
+    return render(request, 'product_form.html', {'form': form})
+
+def product_update(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    old_stock = product.stock_quantity
+    old_restock_date = product.restock_date
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            updated_product = form.save(commit=False)
+            # Check for restock changes
+            if updated_product.stock_quantity > old_stock or updated_product.restock_date != old_restock_date:
+                restocked_qty = max(updated_product.stock_quantity - old_stock, 0)
+                if restocked_qty > 0:
+                    RestockHistory.objects.create(
+                        product=updated_product,
+                        previous_stock=old_stock,
+                        restocked_quantity=restocked_qty,
+                        restock_date=updated_product.restock_date or old_restock_date
+                    )
+            updated_product.save()
+            return redirect('products_list')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'product_form.html', {'form': form, 'product': product})
+
+def restock_history_list(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    history = product.restock_histories.all().order_by('-restock_date')
+    return render(request, 'restock_history_list.html', {'product': product, 'history': history})
