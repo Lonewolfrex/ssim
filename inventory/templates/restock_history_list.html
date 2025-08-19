@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Restock History for {{ product.name }}</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Restock Date</th><th>Previous Stock</th><th>Restocked Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in history %}
+        <tr>
+            <td>{{ record.restock_date|date:"Y-m-d" }}</td>
+            <td>{{ record.previous_stock }}</td>
+            <td>{{ record.restocked_quantity }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No restock history found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'products_list' %}" class="btn btn-primary">Back to Products</a>
+{% endblock %}
