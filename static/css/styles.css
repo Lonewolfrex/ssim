@@ -1,0 +1,91 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff8f0; /* Warm off-white */
+    color: #4b3100; /* Deep brown for text */
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background: linear-gradient(90deg, #ff6f00, #e65100); /* Saffron to deeper orange */
+    box-shadow: 0 2px 6px rgba(102, 51, 0, 0.3);
+}
+
+.navbar-brand, .nav-link {
+    color: #fff8dc !important; /* Light cream */
+    font-weight: 700;
+    transition: color 0.3s ease;
+    text-shadow: 1px 1px 2px #6b3e00;
+}
+
+.nav-link:hover {
+    color: #ffd700 !important; /* Gold hover */
+    text-shadow: none;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 30px;
+    background: #fff3e0; /* Very light peach cream */
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(204, 102, 0, 0.2);
+}
+
+h2 {
+    font-weight: 800;
+    color: #bf360c; /* Deep red-orange */
+    margin-bottom: 20px;
+    letter-spacing: 1.5px;
+    font-family: 'Georgia', serif;
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(191, 54, 12, 0.3);
+}
+
+.table thead {
+    background: #ff7043; /* Coral */
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.table tbody tr:hover {
+    background-color: #ffccbc; /* Light peach */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.table td, .table th {
+    vertical-align: middle !important;
+    padding: 12px 15px !important;
+    color: #4b3100;
+}
+
+img {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(191, 54, 12, 0.3);
+}
+
+canvas {
+    max-width: 100%;
+    height: 350px !important;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(191, 54, 12, 0.3);
+    background: #fff3e0;
+    padding: 20px;
+}
+
+.footer {
+    background: #bf360c;
+    color: #fff8dc;
+    text-align: center;
+    font-size: 0.9em;
+    margin: 30px 0 10px;
+    padding: 15px 0;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    box-shadow: inset 0 5px 15px rgba(204, 102, 0, 0.4);
+}

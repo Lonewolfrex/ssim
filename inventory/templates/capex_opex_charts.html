@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>CAPEX and OPEX Monthly Chart</h2>
+<canvas id="expenseChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('expenseChart').getContext('2d');
+const expenseChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ months|safe }},
+        datasets: [
+            {
+                label: 'CAPEX',
+                data: {{ capex_data|safe }},
+                backgroundColor: 'rgba(74, 0, 224, 0.7)'
+            },
+            {
+                label: 'OPEX',
+                data: {{ opex_data|safe }},
+                backgroundColor: 'rgba(142, 45, 226, 0.7)'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Vendors</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>GSTIN</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in vendors %}
+        <tr>
+            <td>{{ v.name }}</td>
+            <td>{{ v.contact_email }}</td>
+            <td>{{ v.phone }}</td>
+            <td>{{ v.address }}</td>
+            <td>{{ v.gstin }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center">No vendors found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

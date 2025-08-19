@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Customers</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in customers %}
+        <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.contact_email }}</td>
+            <td>{{ c.phone }}</td>
+            <td>{{ c.address }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center">No customers found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
