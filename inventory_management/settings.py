@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'inventory',
     'django_filters',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
