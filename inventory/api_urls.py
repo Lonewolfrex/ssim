@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .api_views import (
     ProductViewSet, CategoryViewSet, VendorViewSet,
-    CustomerViewSet, SaleViewSet, ExpenseViewSet
+    CustomerViewSet, SaleViewSet, ExpenseViewSet, ProductBulkCreateView
 )
 
 router = DefaultRouter()
@@ -15,4 +15,5 @@ router.register(r'expenses', ExpenseViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/products/bulk/', ProductBulkCreateView.as_view(), name='product-bulk-create'),
 ]
