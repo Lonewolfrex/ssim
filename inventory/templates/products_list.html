@@ -46,6 +46,8 @@
                 {% endif %}
             </th>
 
+            <th>Description</th>
+
             <th>
                 {% if sort_by == "stock_quantity" %}
                     <a href="?page=1&category={{ selected_category }}&sort=-stock_quantity&search={{ search_query }}">Stock &#9650;</a>
@@ -122,6 +124,7 @@
                     N/A
                 {% endif %}
             </td>
+            <td>{{ product.description|linebreaksbr }}</td>
             <td>{{ product.stock_quantity }}</td>
             <td>{{ product.cost_price }}</td>
             <td>{{ product.mrp }}</td>
@@ -148,7 +151,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="11" class="text-center">No products found.</td>
+            <td colspan="12" class="text-center">No products found.</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -22,7 +22,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'name', 'category', 'vendor', 'cost_price', 'mrp', 'selling_price',
+            'name', 'category', 'description','vendor', 'cost_price', 'mrp', 'selling_price',
             'discount', 'stock_quantity', 'image', 'restock_date',
         ]
         widgets = {
