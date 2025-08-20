@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Sale #{{ sale.id }}</h2>
+
+<p><strong>Customer:</strong> {{ sale.customer.name }} ({{ sale.customer.phone_number }})</p>
+<p><strong>Address:</strong> {{ sale.customer.address }}</p>
+<p><strong>Payment Method:</strong> {{ sale.get_payment_method_display }}</p>
+<p><strong>Transaction Date:</strong> {{ sale.transaction_date|date:"Y-m-d H:i" }}</p>
+<p><strong>Total Amount:</strong> {{ sale.total_amount }}</p>
+
+<h3>Items Sold</h3>
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Amount Paid</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for item in sale.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.amount_paid }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'sales_list' %}">Back to Sales List</a>
+{% endblock %}

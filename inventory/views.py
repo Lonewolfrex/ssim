@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Customer, Vendor, Expense, Sale, Category, RestockHistory
+from .models import Product, Customer, Vendor, Expense, Sale, Category, RestockHistory, SaleItem
 from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
-from .forms import SaleForm, CategoryForm, ProductForm
+from .forms import SaleForm, CategoryForm, ProductForm, SaleItemFormset, CustomerForm, CustomerSelectionForm
 from django.core.paginator import Paginator
-
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from .models import Product, Category
+from django.forms import formset_factory
+from django.contrib import messages
 
 def products_list(request):
     products = Product.objects.all()
@@ -46,7 +48,6 @@ def products_list(request):
         'search_query': search_query or '',
     }
     return render(request, 'products_list.html', context)
-
 
 def customer_list(request):
     customers = Customer.objects.all()
@@ -88,8 +89,13 @@ def capex_opex_charts(request):
 
 # Sales list & create
 def sales_list(request):
-    sales = Sale.objects.select_related('product', 'customer').all().order_by('-sale_date')
-    return render(request, 'sales_list.html', {'sales': sales})
+    sales = Sale.objects.all().order_by('-transaction_date')
+
+    paginator = Paginator(sales, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'sales/sales_list.html', {'page_obj': page_obj})
 
 def sale_create(request):
     if request.method == 'POST':
@@ -100,6 +106,11 @@ def sale_create(request):
     else:
         form = SaleForm()
     return render(request, 'sale_form.html', {'form': form})
+
+def sale_detail(request, pk):
+    sale = get_object_or_404(Sale, pk=pk)
+    return render(request, 'sales/sale_detail.html', {'sale': sale})
+
 
 # Categories list & create
 def categories_list(request):
@@ -163,3 +174,82 @@ def restock_history_list(request, pk):
     product = get_object_or_404(Product, pk=pk)
     history = product.restock_histories.all().order_by('-restock_date')
     return render(request, 'restock_history_list.html', {'product': product, 'history': history})
+
+def create_sale(request):
+    if request.method == 'POST':
+        customer_form = CustomerSelectionForm(request.POST)
+        sale_form = SaleForm(request.POST)
+        sale_item_formset = SaleItemFormset(request.POST)
+
+        if customer_form.is_valid() and sale_form.is_valid() and sale_item_formset.is_valid():
+            try:
+                with transaction.atomic():
+                    choice = customer_form.cleaned_data['customer_choice']
+                    if choice == customer_form.CHOICE_NEW:
+                        name = customer_form.cleaned_data['name']
+                        phone = customer_form.cleaned_data['phone_number']
+                        address = customer_form.cleaned_data['address']
+                        if not all([name, phone]):
+                            messages.error(request, "Name and Phone number are required for new customer")
+                            raise ValueError("Missing customer info")
+                        customer, created = Customer.objects.get_or_create(
+                            phone_number=phone,
+                            defaults={'name': name, 'address': address}
+                        )
+                    else:
+                        customer = customer_form.cleaned_data['existing_customer']
+                        if not customer:
+                            messages.error(request, "Please select an existing customer or add a new one")
+                            raise ValueError("No customer selected")
+
+                    sale = sale_form.save(commit=False)
+                    sale.customer = customer
+                    sale.save()
+
+                    total_amount = 0
+                    for form in sale_item_formset:
+                        if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                            product = form.cleaned_data.get('product')
+                            quantity = form.cleaned_data.get('quantity')
+                            amount_paid = form.cleaned_data.get('amount_paid')
+
+                            if product.stock_quantity < quantity:
+                                messages.error(request, f"Insufficient stock for {product.name}")
+                                raise ValueError("Stock insufficient")
+
+                            product.stock_quantity -= quantity
+                            product.save()
+
+                            sale_item = form.save(commit=False)
+                            sale_item.sale = sale
+                            sale_item.save()
+
+                            total_amount += amount_paid
+
+                    sale.total_amount = total_amount
+                    sale.save()
+
+                    messages.success(request, "Sale recorded successfully")
+                    return redirect('sales_list')
+
+            except ValueError:
+                # Will display error messages above
+                pass
+
+        else:
+            messages.error(request, "Please fix the errors below.")
+    else:
+        customer_form = CustomerSelectionForm()
+        sale_form = SaleForm()
+        sale_item_formset = SaleItemFormset()
+
+    return render(request, 'sales/create_sale.html', {
+        'customer_form': customer_form,
+        'sale_form': sale_form,
+        'sale_item_formset': sale_item_formset,
+    })
+
+
+
+
+
