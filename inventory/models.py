@@ -29,6 +29,7 @@ class Customer(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True, help_text="Enter a detailed description of the product")
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     vendor = models.ForeignKey('Vendor', on_delete=models.SET_NULL, null=True, blank=True)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2)
