@@ -4,9 +4,49 @@ from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
 from .forms import SaleForm, CategoryForm, ProductForm
+from django.core.paginator import Paginator
+
+from django.core.paginator import Paginator
+from django.shortcuts import render
+from .models import Product, Category
+
 def products_list(request):
     products = Product.objects.all()
-    return render(request, 'products_list.html', {'products': products})
+
+    category_id = request.GET.get('category')
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    search_query = request.GET.get('search')
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+
+    sort_by = request.GET.get('sort', 'name')
+    allowed_sort_fields = [
+        'name', 'category__name', 'vendor__name', 'stock_quantity',
+        'cost_price', 'mrp', 'selling_price', 'discount', 'restock_date'
+    ]
+    # Validate sort field including descending prefix '-'
+    if sort_by.lstrip('-') not in allowed_sort_fields:
+        sort_by = 'name'
+
+    products = products.order_by(sort_by)
+
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    categories = Category.objects.all()
+
+    context = {
+        'page_obj': page_obj,
+        'categories': categories,
+        'selected_category': category_id or '',
+        'sort_by': sort_by,
+        'search_query': search_query or '',
+    }
+    return render(request, 'products_list.html', context)
+
 
 def customer_list(request):
     customers = Customer.objects.all()

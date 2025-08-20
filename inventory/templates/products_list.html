@@ -1,25 +1,117 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Products</h2>
-<a href="{% url 'product_create' %}" class="btn btn-primary mb-3">Add New Product</a>
+
+<div class="d-flex justify-content-between mb-3">
+    <a href="{% url 'product_create' %}" class="btn btn-primary">Add New Product</a>
+
+    <form method="get" class="d-flex" style="width: 300px;">
+        <input type="hidden" name="category" value="{{ selected_category }}">
+        <input type="hidden" name="sort" value="{{ sort_by }}">
+        <input class="form-control me-2" type="search" placeholder="Search by name" aria-label="Search" name="search" value="{{ search_query }}">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+</div>
+
 <table class="table table-bordered table-hover">
     <thead class="table-dark">
         <tr>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Vendor</th>
-            <th>Stock</th>
-            <th>Cost Price</th>
-            <th>MRP</th>
-            <th>Selling Price</th>
-            <th>Discount (%)</th>
-            <th>Restock Date</th>
+            <th>
+                {% if sort_by == "name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-name&search={{ search_query }}">Name &#9650;</a>
+                {% elif sort_by == "-name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=name&search={{ search_query }}">Name &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=name&search={{ search_query }}">Name</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "category__name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-category__name&search={{ search_query }}">Category &#9650;</a>
+                {% elif sort_by == "-category__name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=category__name&search={{ search_query }}">Category &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=category__name&search={{ search_query }}">Category</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "vendor__name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-vendor__name&search={{ search_query }}">Vendor &#9650;</a>
+                {% elif sort_by == "-vendor__name" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=vendor__name&search={{ search_query }}">Vendor &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=vendor__name&search={{ search_query }}">Vendor</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "stock_quantity" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-stock_quantity&search={{ search_query }}">Stock &#9650;</a>
+                {% elif sort_by == "-stock_quantity" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=stock_quantity&search={{ search_query }}">Stock &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=stock_quantity&search={{ search_query }}">Stock</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "cost_price" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-cost_price&search={{ search_query }}">Cost Price &#9650;</a>
+                {% elif sort_by == "-cost_price" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=cost_price&search={{ search_query }}">Cost Price &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=cost_price&search={{ search_query }}">Cost Price</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "mrp" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-mrp&search={{ search_query }}">MRP &#9650;</a>
+                {% elif sort_by == "-mrp" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=mrp&search={{ search_query }}">MRP &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=mrp&search={{ search_query }}">MRP</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "selling_price" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-selling_price&search={{ search_query }}">Selling Price &#9650;</a>
+                {% elif sort_by == "-selling_price" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=selling_price&search={{ search_query }}">Selling Price &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=selling_price&search={{ search_query }}">Selling Price</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "discount" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-discount&search={{ search_query }}">Discount &#9650;</a>
+                {% elif sort_by == "-discount" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=discount&search={{ search_query }}">Discount &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=discount&search={{ search_query }}">Discount</a>
+                {% endif %}
+            </th>
+
+            <th>
+                {% if sort_by == "restock_date" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=-restock_date&search={{ search_query }}">Restock Date &#9650;</a>
+                {% elif sort_by == "-restock_date" %}
+                    <a href="?page=1&category={{ selected_category }}&sort=restock_date&search={{ search_query }}">Restock Date &#9660;</a>
+                {% else %}
+                    <a href="?page=1&category={{ selected_category }}&sort=restock_date&search={{ search_query }}">Restock Date</a>
+                {% endif %}
+            </th>
+
             <th>Image</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for product in products %}
+        {% for product in page_obj %}
         <tr>
             <td>{{ product.name }}</td>
             <td>{{ product.category.name }}</td>
@@ -61,4 +153,22 @@
         {% endfor %}
     </tbody>
 </table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&category={{ selected_category }}&sort={{ sort_by }}&search={{ search_query }}">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&search={{ search_query }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&category={{ selected_category }}&sort={{ sort_by }}&search={{ search_query }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&category={{ selected_category }}&sort={{ sort_by }}&search={{ search_query }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
 {% endblock %}
