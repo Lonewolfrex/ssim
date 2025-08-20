@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -19,12 +20,13 @@ class Vendor(models.Model):
 
 class Customer(models.Model):
     name = models.CharField(max_length=200)
-    contact_email = models.EmailField()
-    phone = models.CharField(max_length=20)
-    address = models.TextField()
+    contact_email = models.EmailField(blank=True, null=True)  # Optional email
+    phone_number  = models.CharField(max_length=20, unique=False)     # Make phone unique for searching
+    address = models.TextField(blank=True)                    # Make address optional
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.phone})"
+
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -83,3 +85,26 @@ class RestockHistory(models.Model):
 
     def __str__(self):
         return f"Restocked {self.restocked_quantity} {self.product.name} on {self.restock_date}"
+    
+class Sale(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('upi', 'UPI'),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, default='cash')
+    transaction_date = models.DateTimeField(default=timezone.now)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Sale #{self.id} - {self.customer.name} - {self.transaction_date.date()}"
+    
+class SaleItem(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField()
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)  # price per item * quantity
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} in Sale #{self.sale.id}"

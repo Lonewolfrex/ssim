@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Record New Sale</h2>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <fieldset>
+    <legend>Customer</legend>
+    {{ customer_form.customer_choice }}
+
+    <div id="existing-customer-fields" style="margin-top:10px;">
+      {{ customer_form.existing_customer.label_tag }}<br/>
+      {{ customer_form.existing_customer }}
+    </div>
+
+    <div id="new-customer-fields" style="margin-top:10px; display:none;">
+      <div>
+        {{ customer_form.name.label_tag }}<br/>
+        {{ customer_form.name }}
+      </div>
+      <div>
+        {{ customer_form.phone_number.label_tag }}<br/>
+        {{ customer_form.phone_number }}
+      </div>
+      <div>
+        {{ customer_form.address.label_tag }}<br/>
+        {{ customer_form.address }}
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Sale Details</legend>
+    {{ sale_form.as_p }}
+  </fieldset>
+
+  <fieldset>
+    <legend>Items Sold</legend>
+    {{ sale_item_formset.management_form }}
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Product</th><th>Quantity</th><th>Amount Paid</th><th>Delete?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in sale_item_formset.forms %}
+          <tr>
+            <td>{{ form.product }}</td>
+            <td>{{ form.quantity }}</td>
+            <td>{{ form.amount_paid }}</td>
+            <td>{{ form.DELETE }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </fieldset>
+
+  <button type="submit" class="btn btn-primary">Record Sale</button>
+</form>
+
+<script>
+  function toggleCustomerFields() {
+    const choice = document.querySelector('input[name="customer_choice"]:checked').value;
+    if (choice === 'existing') {
+      document.getElementById('existing-customer-fields').style.display = 'block';
+      document.getElementById('new-customer-fields').style.display = 'none';
+    } else {
+      document.getElementById('existing-customer-fields').style.display = 'none';
+      document.getElementById('new-customer-fields').style.display = 'block';
+    }
+  }
+
+  document.querySelectorAll('input[name="customer_choice"]').forEach(elem => {
+    elem.addEventListener('change', toggleCustomerFields);
+  });
+
+  document.addEventListener('DOMContentLoaded', toggleCustomerFields);
+</script>
+
+{% endblock %}
