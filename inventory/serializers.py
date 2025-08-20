@@ -30,3 +30,8 @@ class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
         fields = '__all__'
+
+class ProductBulkListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        products = [Product(**item) for item in validated_data]
+        return Product.objects.bulk_create(products)
